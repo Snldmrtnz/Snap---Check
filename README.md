@@ -122,51 +122,5 @@ SnapCheck/
 
 ### Frontend Deployment (Vercel)
 
-The frontend is configured for deployment on Vercel with the included `vercel.json` configuration.
+### Backend Deployment (Render)
 
-**Prerequisites:**
-- Vercel account (sign up at [vercel.com](https://vercel.com))
-- Backend API URL (currently on Railway: `https://snapcheck-production.up.railway.app/api`)
-
-**Deploy via Vercel Dashboard (Recommended):**
-1. Go to [vercel.com](https://vercel.com) and sign in
-2. Click "Add New..." → "Project"
-3. Import your Git repository
-4. Configure the project:
-   - **Framework Preset**: Vite (auto-detected)
-   - **Root Directory**: `frontend`
-   - **Build Command**: `npm run build` (auto-detected)
-   - **Output Directory**: `dist` (auto-detected)
-5. Add environment variable:
-   - **Name**: `VITE_API_URL`
-   - **Value**: `https://snapcheck-production.up.railway.app/api` (or your backend URL)
-6. Click "Deploy"
-
-**Deploy via Vercel CLI:**
-```bash
-npm i -g vercel
-cd frontend
-vercel login
-vercel
-# When prompted, set environment variable:
-vercel env add VITE_API_URL
-# Enter: https://snapcheck-production.up.railway.app/api
-vercel --prod
-```
-
-**Important Notes:**
-- The frontend uses environment variables for API configuration
-- Make sure to set `VITE_API_URL` in Vercel dashboard settings
-- Your backend CORS is already configured to allow all origins
-- See `VERCEL_DEPLOYMENT.md` for detailed deployment guide
-
-### Backend Deployment (Railway)
-
-The backend is configured for deployment on Railway with the included `railway.json` and `Dockerfile`.
-
-**Deploy to Railway:**
-1. Connect your GitHub repository to Railway
-2. Create a new project and select your repository
-3. Set the root directory to `backend`
-4. Railway will automatically detect the Dockerfile and deploy
-5. The deployment configuration is handled by `railway.json`
