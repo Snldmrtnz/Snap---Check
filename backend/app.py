@@ -214,8 +214,7 @@ def check_sheet():
         for_bubbles = []
         for c in range(num_choices):
             bubble_x = x + group_offset + number_width + gap + c * col_w
-            # Align bubbles with question numbers (center vertically in the row)
-            bubble_y = y + (row_h // 2)
+            bubble_y = y + bubble_r + 7
             for_bubbles.append((int(round(bubble_x)), int(round(bubble_y)), int(round(bubble_r))))
         bubble_coords.append(for_bubbles)
 
