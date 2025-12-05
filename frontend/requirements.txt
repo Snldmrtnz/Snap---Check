@@ -2,3 +2,4 @@
 react-router-dom
 jspdf jspdf-autotable
 tesseract.js
+
