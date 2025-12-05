@@ -1,6 +1,7 @@
 # Updated on December 6, 2025
 flask
 flask_cors
+gunicorn
 opencv-python-headless
 numpy
 pillow
