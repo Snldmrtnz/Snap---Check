@@ -220,7 +220,7 @@ def check_sheet():
             bubble_x = x + group_offset + number_width + gap + c * col_w
             # Match frontend calculation exactly: yRow + bubbleR + 9
             # Use scale_y for vertical positioning (not the averaged scale used for bubble_r)
-            bubble_y = y + bubble_y_offset_scaled
+            bubble_y = y + int(row_h * 0.70)
             for_bubbles.append((int(round(bubble_x)), int(round(bubble_y)), int(round(bubble_r))))
         bubble_coords.append(for_bubbles)
 
