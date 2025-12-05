@@ -112,7 +112,7 @@ SnapCheck/
 │   ├── eslint.config.js   # ESLint configuration
 │   ├── index.html         # HTML template
 │   ├── package.json       # Node.js dependencies
-│   ├── requirements.txt   # Additional requirements
+│   ├── npm-packages.txt   # Additional npm packages reference
 │   ├── vercel.json        # Vercel deployment config
 │   └── vite.config.js     # Vite configuration
 └── README.md
