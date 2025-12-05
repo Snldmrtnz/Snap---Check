@@ -1,0 +1,9 @@
+# Updated on December 6, 2025
+flask
+flask_cors
+opencv-python-headless
+numpy
+pillow
+pytesseract
+PyMuPDF
+supabase

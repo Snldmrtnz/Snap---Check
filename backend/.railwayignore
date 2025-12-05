@@ -1,0 +1,7 @@
+frontend/
+node_modules/
+.vercel/
+.git/
+README.md
+package.json
+package-lock.json
