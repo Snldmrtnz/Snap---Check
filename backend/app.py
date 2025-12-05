@@ -190,7 +190,7 @@ def check_sheet():
     col_x = [int(x * scale_x) for x in col_x_pdf]
     col_width = col_width_pdf * scale_x
     row_h = int(row_h_pdf * scale_y)
-    row_h = int(row_h * 1.04)
+    # Removed row_h * 1.04 adjustment to match frontend exactly
     col_w = int(col_w_pdf * scale_x)
     bubble_r = int(bubble_r_pdf * ((scale_x + scale_y) / 2))
     number_width = int(number_width_pdf * scale_x)
@@ -206,6 +206,9 @@ def check_sheet():
     section = ocr_region(img, *section_box)
 
     bubble_coords = []
+    # Frontend uses: yRow + bubbleR + 9 for bubble center
+    # bubbleR = 7, so offset is 7 + 9 = 16, but we need to scale the 9 offset
+    bubble_y_offset = int(9 * scale_y)
     for i in range(num_items):
         col = 0 if i < items_per_column else 1
         idx_in_col = i if col == 0 else i - items_per_column
@@ -214,9 +217,9 @@ def check_sheet():
         for_bubbles = []
         for c in range(num_choices):
             bubble_x = x + group_offset + number_width + gap + c * col_w
-            # Align bubbles with question numbers (not letter labels)
-            # Question numbers are typically at ~30-35% of row height
-            bubble_y = y + int(row_h * 0.70)
+            # Match frontend calculation: yRow + bubbleR + 9
+            # bubble_r is already scaled, so we add it plus the scaled offset
+            bubble_y = y + bubble_r + bubble_y_offset
             for_bubbles.append((int(round(bubble_x)), int(round(bubble_y)), int(round(bubble_r))))
         bubble_coords.append(for_bubbles)
 
