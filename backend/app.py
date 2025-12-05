@@ -83,69 +83,14 @@ def detect_black_border(img):
 
 def ocr_region(img, x, y, w, h):
     roi = img[y:y+h, x:x+w]
-    
-    # Convert to grayscale
     gray = cv2.cvtColor(roi, cv2.COLOR_BGR2GRAY)
-    
-    # Resize if too small (improves OCR accuracy)
-    if gray.shape[0] < 30 or gray.shape[1] < 100:
-        scale_factor = max(30 / gray.shape[0], 100 / gray.shape[1], 2.0)
-        new_width = int(gray.shape[1] * scale_factor)
-        new_height = int(gray.shape[0] * scale_factor)
-        gray = cv2.resize(gray, (new_width, new_height), interpolation=cv2.INTER_CUBIC)
-    
-    # Apply multiple preprocessing techniques and try different OCR configs
-    results = []
-    
-    # Method 1: Adaptive threshold
-    proc1 = cv2.adaptiveThreshold(gray, 255, cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY_INV, 15, 10)
+    proc = cv2.adaptiveThreshold(gray, 255, cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY_INV, 15, 10)
     kernel = np.ones((2,2), np.uint8)
-    proc1 = cv2.dilate(proc1, kernel, iterations=1)
-    pil_img1 = Image.fromarray(proc1)
-    
-    # Method 2: Otsu threshold
-    _, proc2 = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)
-    pil_img2 = Image.fromarray(proc2)
-    
-    # Method 3: Gaussian blur + threshold
-    blurred = cv2.GaussianBlur(gray, (5, 5), 0)
-    _, proc3 = cv2.threshold(blurred, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)
-    pil_img3 = Image.fromarray(proc3)
-    
-    # Try different PSM modes for better text recognition
-    psm_modes = [
-        ('--psm 8', 'single word'),  # Single word
-        ('--psm 7', 'single line'),  # Single text line
-        ('--psm 6', 'uniform block'), # Uniform block of text
-        ('--psm 11', 'sparse text'),  # Sparse text
-        ('--psm 13', 'raw line'),     # Raw line
-    ]
-    
-    for psm_config, _ in psm_modes:
-        config = f'{psm_config} --oem 3 -c tessedit_char_whitelist=ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789 /-., '
-        try:
-            text1 = pytesseract.image_to_string(pil_img1, config=config).strip()
-            text2 = pytesseract.image_to_string(pil_img2, config=config).strip()
-            text3 = pytesseract.image_to_string(pil_img3, config=config).strip()
-            
-            # Clean and validate results
-            for text in [text1, text2, text3]:
-                cleaned = ' '.join(text.split())  # Normalize whitespace
-                if cleaned and len(cleaned) > 0:
-                    results.append(cleaned)
-        except:
-            continue
-    
-    # Return the longest result (usually most accurate) or first non-empty
-    if results:
-        # Prefer results with more characters (likely more complete)
-        results.sort(key=len, reverse=True)
-        return results[0]
-    
-    # Fallback to original method
-    config = '--psm 8 --oem 3'
-    text = pytesseract.image_to_string(pil_img1, config=config).strip()
-    return ' '.join(text.split())
+    proc = cv2.dilate(proc, kernel, iterations=1)
+    pil_img = Image.fromarray(proc)
+    config = '--psm 7 --oem 1'
+    text = pytesseract.image_to_string(pil_img, config=config).strip()
+    return text
 
 def detect_bubbles(img, bubble_coords, threshold=0.5):
     answers = []
