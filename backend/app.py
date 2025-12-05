@@ -207,8 +207,9 @@ def check_sheet():
 
     bubble_coords = []
     # Frontend uses: yRow + bubbleR + 9 for bubble center
-    # bubbleR = 7, so offset is 7 + 9 = 16, but we need to scale the 9 offset
-    bubble_y_offset = int(9 * scale_y)
+    # bubbleR = 7, so total offset is 7 + 9 = 16
+    # We need to scale this by scale_y (not the average scale used for bubble_r)
+    bubble_y_offset_scaled = int((bubble_r_pdf + 9) * scale_y)
     for i in range(num_items):
         col = 0 if i < items_per_column else 1
         idx_in_col = i if col == 0 else i - items_per_column
@@ -217,9 +218,9 @@ def check_sheet():
         for_bubbles = []
         for c in range(num_choices):
             bubble_x = x + group_offset + number_width + gap + c * col_w
-            # Match frontend calculation: yRow + bubbleR + 9
-            # bubble_r is already scaled, so we add it plus the scaled offset
-            bubble_y = y + bubble_r + bubble_y_offset
+            # Match frontend calculation exactly: yRow + bubbleR + 9
+            # Use scale_y for vertical positioning (not the averaged scale used for bubble_r)
+            bubble_y = y + bubble_y_offset_scaled
             for_bubbles.append((int(round(bubble_x)), int(round(bubble_y)), int(round(bubble_r))))
         bubble_coords.append(for_bubbles)
 
