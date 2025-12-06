@@ -112,7 +112,7 @@ SnapCheck/
 │   ├── eslint.config.js   # ESLint configuration
 │   ├── index.html         # HTML template
 │   ├── package.json       # Node.js dependencies
-│   ├── requirements.txt   # Additional requirements
+│   ├── npm-packages.txt   # Additional npm packages reference
 │   ├── vercel.json        # Vercel deployment config
 │   └── vite.config.js     # Vite configuration
 └── README.md
@@ -122,28 +122,5 @@ SnapCheck/
 
 ### Frontend Deployment (Vercel)
 
-The frontend is configured for deployment on Vercel with the included `vercel.json` configuration.
+### Backend Deployment (Render)
 
-**Deploy via Vercel CLI:**
-```bash
-npm i -g vercel
-cd frontend
-vercel
-```
-
-**Or deploy via Vercel Dashboard:**
-1. Connect your GitHub repository to Vercel
-2. Set the root directory to `frontend`
-3. Vercel will automatically detect it's a Vite project
-4. Deploy
-
-### Backend Deployment (Railway)
-
-The backend is configured for deployment on Railway with the included `railway.json` and `Dockerfile`.
-
-**Deploy to Railway:**
-1. Connect your GitHub repository to Railway
-2. Create a new project and select your repository
-3. Set the root directory to `backend`
-4. Railway will automatically detect the Dockerfile and deploy
-5. The deployment configuration is handled by `railway.json`

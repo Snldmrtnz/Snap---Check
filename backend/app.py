@@ -16,8 +16,8 @@ app = Flask(__name__)
 CORS(app, resources={r"/api/*": {"origins": "*"}})
 
 # Supabase configuration
-SUPABASE_URL = "https://mokpviqoctidtpwdihax.supabase.co"
-SUPABASE_KEY = "sb_secret_KcrDXUkPQq8_CPNGcXqQug_-xfgVjol"  # Replace with env var in production
+SUPABASE_URL = os.environ.get("SUPABASE_URL", "https://mokpviqoctidtpwdihax.supabase.co")
+SUPABASE_KEY = os.environ.get("SUPABASE_KEY", "sb_secret_KcrDXUkPQq8_CPNGcXqQug_-xfgVjol")
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 @app.route('/')
