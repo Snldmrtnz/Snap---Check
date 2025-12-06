@@ -124,8 +124,5 @@ SnapCheck/
 ## Deployment
 
 ### Frontend Deployment (Vercel)
-
-
 ### Backend Deployment (Render)
-See `Procfile` for Render deployment configuration. You can deploy the backend directly to Render using your account and the provided configuration files.
 
