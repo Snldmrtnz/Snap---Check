@@ -1,6 +1,6 @@
 # SnapCheck
 
-An automated test paper checking system that processes multiple-choice answer sheets from images (JPEG/PNG) and PDF files. Uses computer vision and OCR to detect filled bubbles, extract student information, and provide detailed scoring with Excel export functionality.
+An automated test paper checking system that processes multiple-choice answer sheets from images PNG and PDF files. Uses computer vision and OCR to detect filled bubbles, extract student information, and provide detailed scoring with Excel export functionality.
 
 ## Features
 
