@@ -9,6 +9,7 @@ import pytesseract
 import base64
 import json
 import fitz
+from supabase_db import insert_exam
 
 app = Flask(__name__)
 CORS(app, resources={r"/api/*": {"origins": "*"}})
@@ -243,6 +244,19 @@ def check_sheet():
     cv2.rectangle(annotated, (section_box[0], section_box[1]), (section_box[0]+section_box[2], section_box[1]+section_box[3]), (255,0,0), 2)
 
     annotated_b64 = image_to_base64(annotated)
+
+    # Extract exam_type and subject_name from test_info if available
+    exam_type = test_info.get('exam_type', 'Midterm')
+    subject_name = test_info.get('subject_name', 'Unknown Subject')
+
+    # Insert exam result into Supabase
+    insert_exam(
+        exam_type=exam_type,
+        subject_name=subject_name,
+        name=name,
+        section=section,
+        score=score
+    )
 
     return jsonify({
         'name': name,
