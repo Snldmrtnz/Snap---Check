@@ -4,7 +4,7 @@ An automated test paper checking system that processes multiple-choice answer sh
 
 ## Features
 
-- **Multi-format Support**: Upload JPEG, PNG, or PDF test papers
+- **Multi-format Support**: Upload JPEG, PNG, or PDF test papers (PDFs must have a clear black border for best alignment)
 - **Automated Bubble Detection**: Computer vision-based OMR (Optical Mark Recognition)
 - **OCR Text Extraction**: Extract student names and sections from handwritten text
 - **Annotated Results**: View processed papers with highlighted correct/incorrect answers
@@ -60,9 +60,11 @@ The frontend will start on `http://localhost:5173`
 - Enter the correct answers for your test
 - Save the answer key
 
+
 ### 3. Upload Test Papers
 - Go to the "Upload" tab
 - Upload completed test papers (JPEG, PNG, or PDF)
+- **Important:** For best results, ensure all PDFs (scanned or digital) have a clear, solid black border around the answer area. Faint, thin, or missing borders may cause alignment issues.
 - Click "Scan & Check" to process them
 
 ### 4. View Results
