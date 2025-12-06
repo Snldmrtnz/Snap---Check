@@ -98,7 +98,8 @@ SnapCheck/
 ├── backend/
 │   ├── app.py             # Main Flask application
 │   ├── Dockerfile         # Docker configuration
-│   ├── railway.json       # Railway deployment config
+│   ├── railway.json       # (Legacy) Railway deployment config
+│   ├── Procfile           # Render deployment config
 │   └── requirements.txt   # Python dependencies
 ├── frontend/
 │   ├── public/
@@ -124,5 +125,7 @@ SnapCheck/
 
 ### Frontend Deployment (Vercel)
 
+
 ### Backend Deployment (Render)
+See `Procfile` for Render deployment configuration. You can deploy the backend directly to Render using your account and the provided configuration files.
 
