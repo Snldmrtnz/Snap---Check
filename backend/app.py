@@ -1,4 +1,3 @@
-# Updated on December 6, 2025
 import os
 import io
 import cv2
@@ -10,15 +9,9 @@ import pytesseract
 import base64
 import json
 import fitz
-from supabase import create_client
 
 app = Flask(__name__)
 CORS(app, resources={r"/api/*": {"origins": "*"}})
-
-# Supabase configuration
-SUPABASE_URL = os.environ.get("SUPABASE_URL", "https://mokpviqoctidtpwdihax.supabase.co")
-SUPABASE_KEY = os.environ.get("SUPABASE_KEY", "sb_secret_KcrDXUkPQq8_CPNGcXqQug_-xfgVjol")
-supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 @app.route('/')
 def health_check():
@@ -112,14 +105,6 @@ def detect_bubbles(img, bubble_coords, threshold=0.5):
             answers.append(None)
     return answers
 
-@app.route('/api/results', methods=['GET'])
-def get_results():
-    try:
-        response = supabase.table('exam_results').select('*').order('created_at', desc=True).limit(100).execute()
-        return jsonify(response.data)
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-
 @app.route('/api/check', methods=['POST'])
 def check_sheet():
     file = request.files['file']
@@ -172,7 +157,8 @@ def check_sheet():
         number_width_pdf = grid_params.get('numberWidth', 18)
         gap_pdf = grid_params.get('gap', 8)
         group_offset_pdf = grid_params.get('groupOffset', (col_width_pdf - (number_width_pdf + gap_pdf + num_choices * col_w_pdf)) / 2)
-        grid_start_y_pdf = grid_params.get('gridStartY', 0) + 3
+        # Move grid_start_y lower by increasing offset (was +3, now +18)
+        grid_start_y_pdf = grid_params.get('gridStartY', 0) + 18
         grid_start_y = int(grid_start_y_pdf * scale_y)
     else:
         items_per_column = 25
@@ -184,12 +170,14 @@ def check_sheet():
         number_width_pdf = 18
         gap_pdf = 8
         group_offset_pdf = (col_width_pdf - (number_width_pdf + gap_pdf + num_choices * col_w_pdf)) / 2
-        grid_start_y_pdf = int(test_info.get('grid_start_y', 120)) + 3
+        # Move grid_start_y lower by increasing offset (was +3, now +18)
+        grid_start_y_pdf = int(test_info.get('grid_start_y', 120)) + 18
         grid_start_y = int(grid_start_y_pdf * scale_y)
 
     col_x = [int(x * scale_x) for x in col_x_pdf]
     col_width = col_width_pdf * scale_x
     row_h = int(row_h_pdf * scale_y)
+    row_h = int(row_h * 1.04)
     col_w = int(col_w_pdf * scale_x)
     bubble_r = int(bubble_r_pdf * ((scale_x + scale_y) / 2))
     number_width = int(number_width_pdf * scale_x)
@@ -213,7 +201,8 @@ def check_sheet():
         for_bubbles = []
         for c in range(num_choices):
             bubble_x = x + group_offset + number_width + gap + c * col_w
-            bubble_y = y + bubble_r + 20
+            # Increase offset so bubble_y aligns even better with the number row
+            bubble_y = y + 47
             for_bubbles.append((int(round(bubble_x)), int(round(bubble_y)), int(round(bubble_r))))
         bubble_coords.append(for_bubbles)
 
@@ -243,37 +232,17 @@ def check_sheet():
 
     annotated = img.copy()
 
-    # Draw border rectangle
     cv2.rectangle(annotated, (0, 0), (border_w, border_h), (255, 255, 0), 2)
     
-    # Debug: Log and draw a cross at each bubble center
     for i, item_bubbles in enumerate(bubble_coords):
         for c, (x, y, r) in enumerate(item_bubbles):
-            # Draw a small cross at the bubble center
-            cv2.line(annotated, (x-5, y), (x+5, y), (0, 0, 0), 1)
-            cv2.line(annotated, (x, y-5), (x, y+5), (0, 0, 0), 1)
-            # Draw the usual circle for answer annotation
             color = (0, 255, 0) if answers_idx[i] == c and answers[i] == answer_key[i] else (0, 0, 255) if answers_idx[i] == c else (180, 180, 180)
             cv2.circle(annotated, (x, y), r, color, 2)
-            # Log the first few bubbles for debugging
-            if i < 3 and c < 3:
-                print(f"Bubble {i+1}-{chr(65+c)}: center=({x},{y}), r={r}, grid_start_y={grid_start_y}, row_h={row_h}, bubble_r={bubble_r}, number_width={number_width}, gap={gap}, group_offset={group_offset}")
 
-    # Draw name/section boxes
     cv2.rectangle(annotated, (name_box[0], name_box[1]), (name_box[0]+name_box[2], name_box[1]+name_box[3]), (255,0,0), 2)
     cv2.rectangle(annotated, (section_box[0], section_box[1]), (section_box[0]+section_box[2], section_box[1]+section_box[3]), (255,0,0), 2)
 
     annotated_b64 = image_to_base64(annotated)
-
-    try:
-        supabase.table('exam_results').insert({
-            "name": name,
-            "section": section,  
-            "score": score,
-            "item_results": item_results
-        }).execute()
-    except Exception as e:
-        print(f"Failed to save to Supabase: {e}")
 
     return jsonify({
         'name': name,
@@ -284,4 +253,4 @@ def check_sheet():
     })
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
-    app.run(host='0.0.0.0', port=port, debug=False)
+    app.run(host='0.0.0.0', port=port, debug=False) 
