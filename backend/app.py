@@ -55,19 +55,24 @@ def detect_black_border(img):
     try:
         gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
-        _, thresh = cv2.threshold(gray, 50, 255, cv2.THRESH_BINARY_INV)
+        threshold_value = 50
+        print(f"[DEBUG] Using threshold value for border detection: {threshold_value}")
+        _, thresh = cv2.threshold(gray, threshold_value, 255, cv2.THRESH_BINARY_INV)
 
         contours, _ = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
         if not contours:
+            print("[DEBUG] No contours found for border detection.")
             return None
         
         largest_contour = max(contours, key=cv2.contourArea)
 
         x, y, w, h = cv2.boundingRect(largest_contour)
-        
+        print(f"[DEBUG] Detected border coordinates: x={x}, y={y}, w={w}, h={h}")
+
         min_area = img.shape[0] * img.shape[1] * 0.3
         if w * h < min_area:
+            print(f"[DEBUG] Detected border area too small: {w*h} < {min_area}")
             return None
         
         return (x, y, w, h)
@@ -121,22 +126,43 @@ def check_sheet():
         img = pdf_to_image(file_content)
         if img is None:
             return jsonify({'error': 'Failed to convert PDF to image'}), 400
+
+        # --- PDF alignment logic to match PNG, with fallback ---
+        border_info = detect_black_border(img)
+        if border_info is not None:
+            border_x, border_y, border_w, border_h = border_info
+            min_area = img.shape[0] * img.shape[1] * 0.7
+            if border_w * border_h >= min_area:
+                cropped_img = img[border_y:border_y+border_h, border_x:border_x+border_w]
+                img = cropped_img
+                print(f"[DEBUG] Using detected border for cropping: x={border_x}, y={border_y}, w={border_w}, h={border_h}")
+            else:
+                print(f"[DEBUG] Detected border too small, using full image. Border area: {border_w*border_h}, Min area: {min_area}")
+        else:
+            print("[DEBUG] No border detected, using full image.")
     else:
         in_memory = np.frombuffer(file_content, np.uint8)
         img = cv2.imdecode(in_memory, cv2.IMREAD_COLOR)
-
         if img is None:
             return jsonify({'error': 'Failed to decode image'}), 400
 
-    border_info = detect_black_border(img)
-    if border_info is None:
-        return jsonify({'error': 'Could not detect black border in the image'}), 400
-    
-    border_x, border_y, border_w, border_h = border_info
+        # --- PNG alignment logic to match PDF ---
+        border_info = detect_black_border(img)
+        if border_info is None:
+            return jsonify({'error': 'Could not detect black border in the image'}), 400
+        border_x, border_y, border_w, border_h = border_info
+        cropped_img = img[border_y:border_y+border_h, border_x:border_x+border_w]
+        img = cropped_img
 
-    cropped_img = img[border_y:border_y+border_h, border_x:border_x+border_w]
+        # Force reference size and scaling as in PDF
+        ref_width = 595
+        ref_height = 842
+        scale_x = border_w / ref_width
+        scale_y = border_h / ref_height
 
-    img = cropped_img
+        # Defer name/section box calculation until after grid/scaling logic below
+        name_box = None
+        section_box = None
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
     ref_width = 595
@@ -185,14 +211,25 @@ def check_sheet():
     gap = int(gap_pdf * scale_x)
     group_offset = int(group_offset_pdf * scale_x)
 
-    name_box_pdf = (48, 115, 226, 24) 
-    section_box_pdf = (48, 139, 226, 24)  
-    name_box = tuple(int(v * (scale_x if i % 2 == 0 else scale_y)) for i, v in enumerate(name_box_pdf))
-    section_box = tuple(int(v * (scale_x if i % 2 == 0 else scale_y)) for i, v in enumerate(section_box_pdf))
+
+    name_box_pdf = (48, 115, 226, 24)
+    section_box_pdf = (48, 139, 226, 24)
+    # For PNGs, apply a negative y-offset to align the boxes higher
+    png_y_offset = -28 if not is_pdf else 0  # Increased offset for higher position
+    name_box = tuple(
+        int(v * (scale_x if i % 2 == 0 else scale_y)) if i % 2 == 0 else int(v * scale_y) + (png_y_offset if not is_pdf and i == 1 else 0)
+        for i, v in enumerate(name_box_pdf)
+    )
+    section_box = tuple(
+        int(v * (scale_x if i % 2 == 0 else scale_y)) if i % 2 == 0 else int(v * scale_y) + (png_y_offset if not is_pdf and i == 1 else 0)
+        for i, v in enumerate(section_box_pdf)
+    )
 
     name = ocr_region(img, *name_box)
     section = ocr_region(img, *section_box)
 
+    # Use a different bubble_y_offset for PNGs to match PDF alignment
+    bubble_y_offset = 47 if is_pdf else -5  # Slightly higher for PNGs
     bubble_coords = []
     for i in range(num_items):
         col = 0 if i < items_per_column else 1
@@ -202,8 +239,7 @@ def check_sheet():
         for_bubbles = []
         for c in range(num_choices):
             bubble_x = x + group_offset + number_width + gap + c * col_w
-            # Increase offset so bubble_y aligns even better with the number row
-            bubble_y = y + 47
+            bubble_y = y + bubble_y_offset
             for_bubbles.append((int(round(bubble_x)), int(round(bubble_y)), int(round(bubble_r))))
         bubble_coords.append(for_bubbles)
 
