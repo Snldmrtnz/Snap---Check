@@ -190,7 +190,6 @@ def check_sheet():
     col_x = [int(x * scale_x) for x in col_x_pdf]
     col_width = col_width_pdf * scale_x
     row_h = int(row_h_pdf * scale_y)
-    row_h = int(row_h * 1.04)
     col_w = int(col_w_pdf * scale_x)
     bubble_r = int(bubble_r_pdf * ((scale_x + scale_y) / 2))
     number_width = int(number_width_pdf * scale_x)
@@ -214,7 +213,7 @@ def check_sheet():
         for_bubbles = []
         for c in range(num_choices):
             bubble_x = x + group_offset + number_width + gap + c * col_w
-            bubble_y = y + bubble_r + 7
+            bubble_y = y + bubble_r + 9
             for_bubbles.append((int(round(bubble_x)), int(round(bubble_y)), int(round(bubble_r))))
         bubble_coords.append(for_bubbles)
 
