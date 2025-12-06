@@ -243,13 +243,23 @@ def check_sheet():
 
     annotated = img.copy()
 
+    # Draw border rectangle
     cv2.rectangle(annotated, (0, 0), (border_w, border_h), (255, 255, 0), 2)
     
+    # Debug: Log and draw a cross at each bubble center
     for i, item_bubbles in enumerate(bubble_coords):
         for c, (x, y, r) in enumerate(item_bubbles):
+            # Draw a small cross at the bubble center
+            cv2.line(annotated, (x-5, y), (x+5, y), (0, 0, 0), 1)
+            cv2.line(annotated, (x, y-5), (x, y+5), (0, 0, 0), 1)
+            # Draw the usual circle for answer annotation
             color = (0, 255, 0) if answers_idx[i] == c and answers[i] == answer_key[i] else (0, 0, 255) if answers_idx[i] == c else (180, 180, 180)
             cv2.circle(annotated, (x, y), r, color, 2)
+            # Log the first few bubbles for debugging
+            if i < 3 and c < 3:
+                print(f"Bubble {i+1}-{chr(65+c)}: center=({x},{y}), r={r}, grid_start_y={grid_start_y}, row_h={row_h}, bubble_r={bubble_r}, number_width={number_width}, gap={gap}, group_offset={group_offset}")
 
+    # Draw name/section boxes
     cv2.rectangle(annotated, (name_box[0], name_box[1]), (name_box[0]+name_box[2], name_box[1]+name_box[3]), (255,0,0), 2)
     cv2.rectangle(annotated, (section_box[0], section_box[1]), (section_box[0]+section_box[2], section_box[1]+section_box[3]), (255,0,0), 2)
 
