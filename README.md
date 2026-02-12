@@ -92,12 +92,12 @@ The frontend will start on `http://localhost:5173`
 - **React Router**: Navigation
 
 ### Database
-- SnapCheck uses Supabase (PostgreSQL) for:
--- Storing answer keys
--- Saving student records
--- Recording exam scores
--- Managing test history
--- Cloud-hosted persistent storage
+SnapCheck uses Supabase (PostgreSQL) for:
+- Storing answer keys
+- Saving student records
+- Recording exam scores
+- Managing test history
+- Cloud-hosted persistent storage
 
 ## Project Structure
 
