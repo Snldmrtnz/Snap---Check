@@ -9,6 +9,7 @@ An automated test paper checking system that processes multiple-choice answer sh
 - **OCR Text Extraction**: Extract student names and sections from handwritten text
 - **Annotated Results**: View processed papers with highlighted correct/incorrect answers
 - **PDF Generation**: Export results and answer sheets to PDF
+- **Answer Sheet Generation**: Generates a multiple choice answer sheet
 
 ## Quick Start
 
